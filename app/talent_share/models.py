@@ -17,7 +17,7 @@ is_active: Indicates user's active status
 last_login: Timestamp for user's last logged in
 date_joined: Timestamp for user's signup date
 """
-class User(models.Model):
+class User(User):
     first_name = models.CharField(max_length=30, blank=True,
                                   help_text="First name")
     last_name = models.CharField(max_length=30, blank=True,
