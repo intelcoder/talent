@@ -5,44 +5,15 @@ from .base_models import AbstractArea
 from .base_models import AbstractReview
 
 
-"""User table
-
-Stores user's account information
-
-first_name: User's actual first name
-last_name: User's actual last name
-email: An unique email for the user for login and various account activity
-password:
-is_active: Indicates user's active status
-last_login: Timestamp for user's last logged in
-date_joined: Timestamp for user's signup date
-"""
-class User(User):
-    first_name = models.CharField(max_length=30, blank=True,
-                                  help_text="First name")
-    last_name = models.CharField(max_length=30, blank=True,
-                                 help_text="Last name")
-    email = models.EmailField(blank=True, help_text="Email",
-                              unique=True)
-    password = ""
-    # group = models.ManyToManyField(Group)
-    # user_permission
-    # is_staff
-    is_active = models.BooleanField(default=False)
-    # is_superuser = models.BooleanField(default=False)
-    last_login = models.DateTimeField(blank=True)
-    date_joined = models.DateTimeField()
-
-
-"""UserProfile table
-
-Stores user's profile information
-
-user: Foreign key from the User table to match the user profile and user account
-profile_image_path: Path to user's profile image file
-brief_intro: Brief introduction of user given by user
-"""
 class UserProfile(models.Model):
+    """UserProfile table
+
+    Stores user's profile information
+
+    user: Foreign key from the User table to match the user profile and user account
+    profile_image_path: Path to user's profile image file
+    brief_intro: Brief introduction of user given by user
+    """
     user = models.OneToOneField(User, on_delete=models.CASCADE,
                                 primary_key=True)
     # cell = models.CharField(max_length=150, blank=True)
@@ -51,26 +22,25 @@ class UserProfile(models.Model):
                                    help_text="Brief introduction of yourself")
 
 
-"""TutorProfile table
-
-Stores tutor specific profile information
-Extends UserProfile table
-
-resume: Path to user's resume file
-"""
 class TutorProfile(Timestampable, UserProfile):
+    """TutorProfile table
+
+    Stores tutor specific profile information
+    Extends UserProfile table
+
+    resume: Path to user's resume file
+    """
     # user = models.OneToOneField(UserProfile)
     resume_path = models.FilePathField(path='profile/resume')
 
 
-"""StudentProfile table
 
-Stores student specific profile information
-Extends UserProfile table
-
-
-"""
 class StudentProfile(Timestampable, UserProfile):
+    """StudentProfile table
+    Stores student specific profile information
+    Extends UserProfile table
+
+    """
     student_pref_location = models.CharField()
 
 
