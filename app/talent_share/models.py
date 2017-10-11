@@ -8,8 +8,9 @@ from .base_models import AbstractReview
 class UserProfile(models.Model):
     """UserProfile table
 
-    One to one relationship with Django provided User model
     Stores user's profile information
+
+    One to one relationship with Django provided User model
 
     user: Foreign key from the User table to match the user
           profile and user account
@@ -21,14 +22,13 @@ class UserProfile(models.Model):
                                 primary_key=True)
     profile_image_path = models.ImageField(upload_to='profile/pics')
     pref_location = models.CharField()
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
 
 
 class TutorProfile(Timestampable, UserProfile):
     """TutorProfile table
 
     Stores tutor specific profile information
+
     Extends UserProfile table
 
     brief_intro: brief introduction of Tutor
@@ -42,23 +42,82 @@ class TutorProfile(Timestampable, UserProfile):
     resume_path = models.FilePathField(path='profile/resume',
                                        help_text="Upload your resume")
     is_verified = models.BooleanField(default=False)
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
 
 
 class StudentProfile(Timestampable, UserProfile):
     """StudentProfile table
 
     Stores student specific profile information
+
     Extends UserProfile table
 
     """
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    favorite_animal = models.CharField(max_length=3,
+                                       blank=True,
+                                       default="Cat",
+                                       help_text="CAT CAT CAT")
+
+
+class Course(Timestampable, models.Model):
+    """Course table
+
+    Stores course information
+
+    One to one relationship with Tutor
+    Many to many relationship with SubCategory
+    One to many relationship with Curriculum
+
+    tutor: reference to the tutor who created the course
+    title: course title
+    description: course description
+    is_active: True if the course is available
+    group_max: maximum number of people per session
+    sub_category: subcategory of where the course belongs
+
+    """
+    tutor = models.ForeignKey(TutorProfile,
+                              related_name="tutorprofile",
+                              on_delete=models.CASCADE)
+    sub_category = models.ManyToManyField(SubCategory)
+    title = models.CharField(max_length=255, help_text="Course title")
+    description = models.TextField()
+    is_active = models.BooleanField(default=True)
+    group_max = models.IntegerField()
+
+
+class ImageToCourse(models.Model):
+    """ImageToCourse table
+
+    Stores mapping information between image and course
+
+    One to one relationship with Tutor
+    Many to many relationship with SubCategory
+    One to many relationship with Curriculum
+
+    tutor: reference to the tutor who created the course
+    title: course title
+    description: course description
+    is_active: True if the course is available
+    group_max: maximum number of people per session
+    sub_category: subcategory of where the course belongs
+
+    """
+    course = models.ForeignKey(Course,
+                               related_name="+",
+                               on_delete=models.CASCADE)
+    course_image_path = models.ImageField(upload_to='course/pics')
+
+
+class IframeLinkToCourse(models.Model):
+    course = models.ForeignKey(Course,
+                               related_name="+",
+                               on_delete=models.CASCADE)
+    iframe_url = models.CharField(max_length=255)
+    source_from = models.CharField(max_length=100)
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=50, unique=True)
 
 
 class SubCategory(models.Model):
@@ -67,11 +126,12 @@ class SubCategory(models.Model):
     Language - korea, english
 
     """
-    sub_category = models.CharField(max_length=100, unique=True)
-    category = models.ForeignKey(Category)
+    sub_category = models.CharField(max_length=50, unique=True)
+    category = models.ForeignKey(Category, related_name="category")
+
+# End of Timothy's work
 
 
-# Create your models here.
 class Role(models.Model):
     title = models.CharField(max_length=50, unique=True)
 
@@ -100,9 +160,6 @@ class Location(models.Model):
     address = models.ForeignKey(Address)
 
 
-
-
-
 class TutorReview(AbstractReview):
     express_rating = models.FloatField()
     contents_rating = models.FloatField()
@@ -110,7 +167,7 @@ class TutorReview(AbstractReview):
     teaching_rating = models.FloatField()
     onTime_rating = models.FloatField()
     tutor = models.ForeignKey(
-        Tutor, related_name='+', on_delete=models.CASCADE)
+        TutorProfile, related_name='+', on_delete=models.CASCADE)
 
 
 class Comment(Timestampable, models.Model):
@@ -125,17 +182,6 @@ class DayOfWeek(models.Model):
     name = models.CharField(max_length=50)
 
 
-class Course(Timestampable, models.Model):
-    title = models.CharField(max_length=255)
-    about = models.TextField()  # will contain html
-    course_period = models.IntegerField()  # how many hour per session
-    group_max = models.IntegerField()  # Max number of people in the group
-    curriculum = models.TextField()
-
-    # category also can break down to sub category
-    category = models.ManyToManyField(Category)
-
-
 class CourseComment(Comment):
     course_id = models.ForeignKey(Course)
 
@@ -148,18 +194,6 @@ class CourceSchedule(models.Model):
     time_to = models.DateTimeField()
     day_of_week = models.ForeignKey(DayOfWeek)
     course = models.ForeignKey(Course)
-
-
-class CourseIframeLink(models.Model):
-    course = models.ForeignKey(Course)
-    iframe_url = models.CharField(max_length=255)
-    source_from = models.CharField(max_length=100)
-
-
-class CourseImage(models.Model):
-    image = models.ImageField(upload_to='course/pics')
-    course = models.ForeignKey(
-        Course, related_name='+', on_delete=models.CASCADE)
 
 
 class CourseReview(AbstractReview):
