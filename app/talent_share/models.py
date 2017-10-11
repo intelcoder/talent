@@ -162,6 +162,25 @@ class Curriculum(Timestampable, models.Model):
                                related_name="+",
                                on_delete=models.CASCADE)
     step_number = models.IntegerField()
+    public_description = models.CharField(max_length=300)
+
+
+class CurriculumContents(Timestampable, models.Model):
+    """CurriculumContents table
+
+    Stores private contents of curriculum
+
+    One to one relationship with curriculum
+
+    curriculum: reference to the Curriculum
+    text_content: text content of curriculum
+    has_file: indicator of having file
+    has_image: indicator of having image
+    has_iframe: indicator of having iframe
+    """
+    curriculum = models.OneToOneField(Curriculum,
+                                      on_delete=models.CASCADE,
+                                      primary_key=True)
     text_content = models.TextField()
     has_file = models.BooleanField(default=False)
     has_image = models.BooleanField(default=False)
@@ -282,7 +301,7 @@ class CourseComment(Comment):
 # period, dayOfWeek, location
 
 
-class CourceSchedule(models.Model):
+class CourseSchedule(models.Model):
     time_from = models.DateTimeField()
     time_to = models.DateTimeField()
     day_of_week = models.ForeignKey(DayOfWeek)
