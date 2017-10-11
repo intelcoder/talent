@@ -8,18 +8,21 @@ from .base_models import AbstractReview
 class UserProfile(models.Model):
     """UserProfile table
 
+    One to one relationship with Django provided User model
     Stores user's profile information
 
-    user: Foreign key from the User table to match the user profile and user account
+    user: Foreign key from the User table to match the user
+          profile and user account
     profile_image_path: Path to user's profile image file
-    brief_intro: Brief introduction of user given by user
+    pref_location: Preferred location given by user (long,lat,radius)
     """
-    user = models.OneToOneField(User, on_delete=models.CASCADE,
+    user = models.OneToOneField(User,
+                                on_delete=models.CASCADE,
                                 primary_key=True)
-    # cell = models.CharField(max_length=150, blank=True)
     profile_image_path = models.ImageField(upload_to='profile/pics')
-    brief_intro = models.TextField(max_length=300, blank=True,
-                                   help_text="Brief introduction of yourself")
+    pref_location = models.CharField()
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField()
 
 
 class TutorProfile(Timestampable, UserProfile):
@@ -31,8 +34,14 @@ class TutorProfile(Timestampable, UserProfile):
     resume: Path to user's resume file
     """
     # user = models.OneToOneField(UserProfile)
-    resume_path = models.FilePathField(path='profile/resume')
-
+    brief_intro = models.TextField(max_length=300,
+                                   blank=True,
+                                   help_text="Brief introduction of yourself")
+    resume_path = models.FilePathField(path='profile/resume',
+                                       help_text="Upload your resume")
+    is_verified = models.BooleanField(default=False)
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField()
 
 
 class StudentProfile(Timestampable, UserProfile):
@@ -41,8 +50,9 @@ class StudentProfile(Timestampable, UserProfile):
     Extends UserProfile table
 
     """
-    student_pref_location = models.CharField()
 
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField()
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
