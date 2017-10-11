@@ -5,7 +5,7 @@ from .base_models import AbstractArea
 from .base_models import AbstractReview
 
 
-class UserProfile(models.Model):
+class UserProfile(Timestampable, models.Model):
     """UserProfile table
 
     Stores user's profile information
@@ -145,6 +145,81 @@ class SubCategory(models.Model):
     """
     category = models.ForeignKey(Category, related_name="category")
     sub_category = models.CharField(max_length=50, unique=True)
+
+
+class Curriculum(Timestampable, models.Model):
+    """SubCategory table
+
+    Stores list of SubCategory
+
+    One to many relationship with Category
+
+    category: reference of Category
+    sub_category: name of subcategory
+
+    """
+    course = models.ForeignKey(Course,
+                               related_name="+",
+                               on_delete=models.CASCADE)
+    step_number = models.IntegerField()
+    text_content = models.TextField()
+    has_file = models.BooleanField(default=False)
+    has_image = models.BooleanField(default=False)
+    has_iframe = models.BooleanField(default=False)
+
+
+class FileToCurriculum(models.Model):
+    """FileToCurriculum table
+
+    Stores mapping information between course related file and curriculum
+
+    One to many relationship with curriculum
+
+    curriculum: reference to the Curriculum
+    file_path: path to course related file
+
+    """
+    curriculum = models.ForeignKey(Curriculum,
+                                   related_name="+",
+                                   on_delete=models.CASCADE)
+    file_path = models.FilePathField(path='course/curriculum/file',
+                                     help_text="Upload file")
+
+
+class ImageToCurriculum(models.Model):
+    """ImageToCurriculum table
+
+    Stores mapping information between image and curriculum
+
+    One to many relationship with curriculum
+
+    curriculum: reference to the Curriculum
+    curriculum_image_path: path to course image file
+
+    """
+    curriculum = models.ForeignKey(Curriculum,
+                                   related_name="+",
+                                   on_delete=models.CASCADE)
+    curriculum_image_path = models.ImageField(upload_to='course/curriculum/pics')
+
+
+class IFrameLinkToCurriculum(models.Model):
+    """IFrameLinkToCurriculum table
+
+    Stores mapping information between iFrameLink and curriculum
+
+    One to many relationship with curriculum
+
+    curriculum: reference to the Curriculum
+    iframe_url: url of iframe
+    source_from: video provider
+
+    """
+    curriculum = models.ForeignKey(Curriculum,
+                                   related_name="+",
+                                   on_delete=models.CASCADE)
+    iframe_url = models.CharField(max_length=255)
+    source_from = models.CharField(max_length=100)
 
 
 # End of Timothy's work
