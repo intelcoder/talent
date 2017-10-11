@@ -275,6 +275,10 @@ class IFrameLinkToCurriculum(models.Model):
 
 
 '''Calendar section
+        DayOfWeek
+        TutorAvailability
+        PendingBookingRequest
+        ApprovedBookingRequest
 '''
 
 
@@ -358,6 +362,10 @@ class ApprovedBookingRequest(Timestampable, models.Model):
     """
     request = models.OneToOneField(PendingBookingRequest,
                                    primary_key=True)
+
+
+'''End of calendar section ======================================
+'''
 
 
 # End of Timothy's work
