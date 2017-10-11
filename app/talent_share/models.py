@@ -5,6 +5,13 @@ from .base_models import AbstractArea
 from .base_models import AbstractReview
 
 
+'''Profile Section
+        UserProfile
+        TutorProfile
+        StudentProfile
+'''
+
+
 class UserProfile(Timestampable, models.Model):
     """UserProfile table
 
@@ -58,6 +65,23 @@ class StudentProfile(Timestampable, UserProfile):
                                        help_text="CAT CAT CAT")
 
 
+'''End of profile section ====================================================
+'''
+
+
+''' Course and curriculum section
+        Course
+        ImageToCourse
+        Category
+        SubCategory
+        Curriculum
+        CurriculumContents
+        FileToCurriculum
+        ImageToCurriculum
+        IFrameLinkToCurriculum
+'''
+
+
 class Course(Timestampable, models.Model):
     """Course table
 
@@ -66,6 +90,8 @@ class Course(Timestampable, models.Model):
     One to one relationship with Tutor
     Many to many relationship with SubCategory
     One to many relationship with Curriculum
+    Many to many relationship with TutorAvailability
+
 
     tutor: reference to the tutor who created the course
     title: course title
@@ -73,16 +99,19 @@ class Course(Timestampable, models.Model):
     is_active: True if the course is available
     group_max: maximum number of people per session
     sub_category: subcategory of where the course belongs
+    availability: availability of course set by tutor
 
     """
     tutor = models.ForeignKey(TutorProfile,
                               related_name="tutorprofile",
                               on_delete=models.CASCADE)
     sub_category = models.ManyToManyField(SubCategory)
+    availability = models.ManyToManyField(TutorAvailability)
     title = models.CharField(max_length=255, help_text="Course title")
     description = models.TextField()
     is_active = models.BooleanField(default=True)
     group_max = models.IntegerField()
+
 
 
 class ImageToCourse(models.Model):
@@ -241,6 +270,96 @@ class IFrameLinkToCurriculum(models.Model):
     source_from = models.CharField(max_length=100)
 
 
+'''End of course and curriculum section ======================================
+'''
+
+
+'''Calendar section
+'''
+
+
+class DayOfWeek(models.Model):
+    """DayOfWeek table
+
+    Stores Day of week information
+    Available Day: Monday, Tuesday, Wednesday,
+                    Thursday, Friday, Saturday, Sunday
+
+    name: full name of day
+    short_name: 3 characters shortened version for name of day
+    """
+    name = models.CharField(max_length=9,
+                            unique=True,
+                            primary_key=True)
+    short_name = models.CharField(max_length=3, unique=True)
+
+
+class TutorAvailability(models.Model):
+    """TutorAvailability table
+
+    Stores availability of tutor as in day based weekly schedule
+
+    One to many relationship with TutorProfile
+    One to many relationship with DayOfWeek (start,end day)
+
+    tutor: reference to TutorProfile
+    start_day: start day
+    end_day: end day
+    start_time: start time
+    end_time: end time
+    """
+    tutor = models.ForeignKey(TutorProfile,
+                              related_name="+",
+                              on_delete=models.CASCADE)
+    start_day = models.ForeignKey(DayOfWeek, related_name='+')
+    end_day = models.ForeignKey(DayOfWeek, related_name='+')
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+
+class PendingBookingRequest(Timestampable, models.Model):
+    """PendingBookingRequest table
+
+    Stores all of created booking request by students
+
+    One to many relationship with StudentProfile
+    One to many relationship with TutorProfile
+    One to many relationship with CourseProfile
+
+    student: reference to student
+    tutor: reference to tutor
+    course: reference to course
+    start_time: start time in DateTime form
+    end_time: end time in DateTime form
+    message: private message in the request
+    request_status: status of request[P(ending(,R(ejected),A(pproved)]
+    """
+    student = models.ForeignKey(StudentProfile,
+                                related_name="studentprofile")
+    tutor = models.ForeignKey(TutorProfile,
+                              related_name="tutorprofile")
+    course = models.ForeignKey(Course,
+                               related_name='+')
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    message = models.CharField(max_length=300)
+    # 3 status, P(ending), R(ejected), A(pproved)
+    request_status = models.CharField(max_length=3)
+
+
+class ApprovedBookingRequest(Timestampable, models.Model):
+    """ApprovedBookingRequest table
+
+    Stores reference of PendingBookingRequests when the request is approved
+
+    One to One relationship with PendingBookingRequest
+
+    request: approved request reference
+    """
+    request = models.OneToOneField(PendingBookingRequest,
+                                   primary_key=True)
+
+
 # End of Timothy's work
 
 
@@ -290,22 +409,11 @@ class Comment(Timestampable, models.Model):
         abstract = True
 
 
-class DayOfWeek(models.Model):
-    name = models.CharField(max_length=50)
-
-
 class CourseComment(Comment):
     course_id = models.ForeignKey(Course)
 
 
 # period, dayOfWeek, location
-
-
-class CourseSchedule(models.Model):
-    time_from = models.DateTimeField()
-    time_to = models.DateTimeField()
-    day_of_week = models.ForeignKey(DayOfWeek)
-    course = models.ForeignKey(Course)
 
 
 class CourseReview(AbstractReview):
