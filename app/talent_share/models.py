@@ -31,7 +31,9 @@ class TutorProfile(Timestampable, UserProfile):
     Stores tutor specific profile information
     Extends UserProfile table
 
-    resume: Path to user's resume file
+    brief_intro: brief introduction of Tutor
+    resume_path: Path to user's resume file
+    is_verified: True if the tutor is verified
     """
     # user = models.OneToOneField(UserProfile)
     brief_intro = models.TextField(max_length=300,
@@ -46,13 +48,14 @@ class TutorProfile(Timestampable, UserProfile):
 
 class StudentProfile(Timestampable, UserProfile):
     """StudentProfile table
+
     Stores student specific profile information
     Extends UserProfile table
 
     """
-
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
+
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
