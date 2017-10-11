@@ -113,7 +113,6 @@ class Course(Timestampable, models.Model):
     group_max = models.IntegerField()
 
 
-
 class ImageToCourse(models.Model):
     """ImageToCourse table
 
@@ -131,7 +130,7 @@ class ImageToCourse(models.Model):
     course_image_path = models.ImageField(upload_to='course/pics')
 
 
-class IframeLinkToCourse(models.Model):
+class IFrameLinkToCourse(models.Model):
     """IframeLinkToCourse table
 
     Stores mapping information between iFrameLink and course
