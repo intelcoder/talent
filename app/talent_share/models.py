@@ -90,16 +90,10 @@ class ImageToCourse(models.Model):
 
     Stores mapping information between image and course
 
-    One to one relationship with Tutor
-    Many to many relationship with SubCategory
-    One to many relationship with Curriculum
+    One to many relationship with Course
 
-    tutor: reference to the tutor who created the course
-    title: course title
-    description: course description
-    is_active: True if the course is available
-    group_max: maximum number of people per session
-    sub_category: subcategory of where the course belongs
+    course: reference to the Course
+    course_image_path: path to course image file
 
     """
     course = models.ForeignKey(Course,
@@ -109,6 +103,17 @@ class ImageToCourse(models.Model):
 
 
 class IframeLinkToCourse(models.Model):
+    """IframeLinkToCourse table
+
+    Stores mapping information between iFrameLink and course
+
+    One to many relationship with Course
+
+    course: reference to the Course
+    iframe_url: url of iframe
+    source_from: video provider
+
+    """
     course = models.ForeignKey(Course,
                                related_name="+",
                                on_delete=models.CASCADE)
@@ -117,17 +122,30 @@ class IframeLinkToCourse(models.Model):
 
 
 class Category(models.Model):
+    """Category table
+
+    Stores list of category
+
+    name: name of category
+
+    """
     name = models.CharField(max_length=50, unique=True)
 
 
 class SubCategory(models.Model):
-    """
-    SubCategory is to define specific category
-    Language - korea, english
+    """SubCategory table
+
+    Stores list of SubCategory
+
+    One to many relationship with Category
+
+    category: reference of Category
+    sub_category: name of subcategory
 
     """
-    sub_category = models.CharField(max_length=50, unique=True)
     category = models.ForeignKey(Category, related_name="category")
+    sub_category = models.CharField(max_length=50, unique=True)
+
 
 # End of Timothy's work
 
@@ -163,7 +181,7 @@ class Location(models.Model):
 class TutorReview(AbstractReview):
     express_rating = models.FloatField()
     contents_rating = models.FloatField()
-    prepration_rating = models.FloatField()
+    preparation_rating = models.FloatField()
     teaching_rating = models.FloatField()
     onTime_rating = models.FloatField()
     tutor = models.ForeignKey(
