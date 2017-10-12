@@ -99,14 +99,11 @@ class Course(Timestampable, models.Model):
     is_active: True if the course is available
     group_max: maximum number of people per session
     sub_category: subcategory of where the course belongs
-    availability: availability of course set by tutor
-
     """
     tutor = models.ForeignKey(TutorProfile,
                               related_name="tutorprofile",
                               on_delete=models.CASCADE)
     sub_category = models.ManyToManyField(SubCategory)
-    availability = models.ManyToManyField(TutorAvailability)
     title = models.CharField(max_length=255, help_text="Course title")
     description = models.TextField()
     is_active = models.BooleanField(default=True)
@@ -215,54 +212,55 @@ class CurriculumContents(Timestampable, models.Model):
     has_iframe = models.BooleanField(default=False)
 
 
-class FileToCurriculum(models.Model):
-    """FileToCurriculum table
+class FileToCurriculumContents(models.Model):
+    """FileToCurriculumContents table
 
-    Stores mapping information between course related file and curriculum
+    Stores mapping information between course contents related file
+        and curriculum contents
 
-    One to many relationship with curriculum
+    One to many relationship with CurriculumContents
 
-    curriculum: reference to the Curriculum
+    contents: reference to the CurriculumContents
     file_path: path to course related file
 
     """
-    curriculum = models.ForeignKey(Curriculum,
-                                   related_name="+",
-                                   on_delete=models.CASCADE)
+    contents = models.ForeignKey(CurriculumContents,
+                                 related_name="+",
+                                 on_delete=models.CASCADE)
     file_path = models.FilePathField(path='course/curriculum/file',
                                      help_text="Upload file")
 
 
-class ImageToCurriculum(models.Model):
-    """ImageToCurriculum table
+class ImageToCurriculumContents(models.Model):
+    """ImageToCurriculumContents table
 
-    Stores mapping information between image and curriculum
+    Stores mapping information between image and curriculum contents
 
-    One to many relationship with curriculum
+    One to many relationship with curriculum contents
 
-    curriculum: reference to the Curriculum
-    curriculum_image_path: path to course image file
+    contents: reference to the CurriculumContents
+    image_path: path to course image file
 
     """
-    curriculum = models.ForeignKey(Curriculum,
-                                   related_name="+",
-                                   on_delete=models.CASCADE)
-    curriculum_image_path = models.ImageField(upload_to='course/curriculum/pics')
+    contents = models.ForeignKey(CurriculumContents,
+                                 related_name="+",
+                                 on_delete=models.CASCADE)
+    image_path = models.ImageField(upload_to='course/curriculum/pics')
 
 
-class IFrameLinkToCurriculum(models.Model):
-    """IFrameLinkToCurriculum table
+class IFrameLinkToCurriculumContents(models.Model):
+    """IFrameLinkToCurriculumContents table
 
-    Stores mapping information between iFrameLink and curriculum
+    Stores mapping information between iFrameLink and curriculum contents
 
-    One to many relationship with curriculum
+    One to many relationship with CurriculumContents
 
-    curriculum: reference to the Curriculum
+    contents: reference to the CurriculumContents
     iframe_url: url of iframe
     source_from: video provider
 
     """
-    curriculum = models.ForeignKey(Curriculum,
+    contents = models.ForeignKey(CurriculumContents,
                                    related_name="+",
                                    on_delete=models.CASCADE)
     iframe_url = models.CharField(max_length=255)
@@ -288,10 +286,12 @@ class DayOfWeek(models.Model):
     Available Day: Monday, Tuesday, Wednesday,
                     Thursday, Friday, Saturday, Sunday
 
+    country: country
     name: full name of day
     short_name: 3 characters shortened version for name of day
     """
-    name = models.CharField(max_length=9,
+    country = models.ForeignKey(Country, related_name="+")
+    name = models.CharField(max_length=20,
                             unique=True,
                             primary_key=True)
     short_name = models.CharField(max_length=3, unique=True)
