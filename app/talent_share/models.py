@@ -99,11 +99,13 @@ class Course(Timestampable, models.Model):
     is_active: True if the course is available
     group_max: maximum number of people per session
     sub_category: subcategory of where the course belongs
+    availability: availability of course set by tutor
     """
     tutor = models.ForeignKey(TutorProfile,
                               related_name="tutorprofile",
                               on_delete=models.CASCADE)
     sub_category = models.ManyToManyField(SubCategory)
+    availability = models.ManyToManyField(TutorAvailability)
     title = models.CharField(max_length=255, help_text="Course title")
     description = models.TextField()
     is_active = models.BooleanField(default=True)
