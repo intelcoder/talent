@@ -277,8 +277,8 @@ class IFrameLinkToCurriculumContents(models.Model):
 ''' Calendar section
         DayOfWeek
         TutorAvailability
-        PendingBookingRequest
-        ApprovedBookingRequest
+        PendingRequest
+        ApprovedRequest
 '''
 
 
@@ -520,15 +520,6 @@ class ResumeExperienceToCourse(Timestampable, models.Model):
 
 
 '''End of resume section =====================================================
-'''
-
-
-''' Review section
-
-'''
-
-
-'''End of review section =====================================================
 '''
 
 
