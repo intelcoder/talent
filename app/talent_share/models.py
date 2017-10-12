@@ -5,7 +5,7 @@ from .base_models import AbstractArea
 from .base_models import AbstractReview
 
 
-'''Profile Section
+''' Profile Section
         UserProfile
         TutorProfile
         StudentProfile
@@ -110,6 +110,7 @@ class Course(Timestampable, models.Model):
     description = models.TextField()
     is_active = models.BooleanField(default=True)
     group_max = models.IntegerField()
+    price_per_session = models.IntegerField()
 
 
 class ImageToCourse(models.Model):
@@ -273,7 +274,7 @@ class IFrameLinkToCurriculumContents(models.Model):
 '''
 
 
-'''Calendar section
+''' Calendar section
         DayOfWeek
         TutorAvailability
         PendingBookingRequest
@@ -322,10 +323,10 @@ class TutorAvailability(models.Model):
     end_time = models.TimeField()
 
 
-class PendingBookingRequest(Timestampable, models.Model):
-    """PendingBookingRequest table
+class PendingRequest(Timestampable, models.Model):
+    """PendingRequest table
 
-    Stores all of created booking request by students
+    Stores all of created request by users
 
     One to many relationship with StudentProfile
     One to many relationship with TutorProfile
@@ -334,10 +335,16 @@ class PendingBookingRequest(Timestampable, models.Model):
     student: reference to student
     tutor: reference to tutor
     course: reference to course
+    request_type: Type of the request [ Booking,
+                                        Cancel,
+                                        Modification ]
     start_time: start time in DateTime form
     end_time: end time in DateTime form
     message: private message in the request
-    request_status: status of request[P(ending(,R(ejected),A(pproved)]
+    request_status: status of request [ P(ending),
+                                        R(ejected),
+                                        A(pproved),
+                                        M(odified) ]
     """
     student = models.ForeignKey(StudentProfile,
                                 related_name="studentprofile")
@@ -348,16 +355,15 @@ class PendingBookingRequest(Timestampable, models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     message = models.CharField(max_length=300)
-    # 3 status, P(ending), R(ejected), A(pproved)
-    request_status = models.CharField(max_length=3)
+    request_status = models.CharField(max_length=1)
 
 
-class ApprovedBookingRequest(Timestampable, models.Model):
+class ApprovedRequest(Timestampable, models.Model):
     """ApprovedBookingRequest table
 
-    Stores reference of PendingBookingRequests when the request is approved
+    Stores reference of PendingRequests when the request is approved
 
-    One to One relationship with PendingBookingRequest
+    One to One relationship with PendingRequest
     One to Many relationship with TutorProfile
     One to Many relationship with StudentProfile
 
@@ -365,7 +371,7 @@ class ApprovedBookingRequest(Timestampable, models.Model):
     tutor: Tutor profile reference
     student: Studetn profile reference
     """
-    request = models.OneToOneField(PendingBookingRequest,
+    request = models.OneToOneField(PendingRequest,
                                    primary_key=True)
     tutor = models.ForeignKey(TutorProfile,
                               related_name="tutorprofile")
@@ -376,8 +382,15 @@ class ApprovedBookingRequest(Timestampable, models.Model):
 '''
 
 
-'''Resume section
-
+''' Resume section
+        ResumeEducation
+        ResumeSkill
+        ResumeExperience
+        ResumeEducationToCourse
+        ResumeSkillToCourse
+        ResumeExperienceToCourse
+    Note:
+        Resume information is desired to be pulled from LinkedIn
 '''
 
 
@@ -467,7 +480,64 @@ class ResumeExperience(Timestampable, models.Model):
     description = models.TextField()
 
 
+class ResumeEducationToCourse(Timestampable, models.Model):
+    """ResumeEducationToCourse table
+
+    Maps related education information to course
+
+    Many to Many relationship with Course
+    Many to Many relationship with ResumeEducation
+
+    """
+    course = models.ManyToManyField(Course)
+    education = models.ManyToManyField(ResumeEducation)
+
+
+class ResumeSkillToCourse(Timestampable, models.Model):
+    """ResumeSkillToCourse table
+
+    Maps related skill information to course
+
+    Many to Many relationship with Course
+    Many to Many relationship with ResumeSkill
+
+    """
+    course = models.ManyToManyField(Course)
+    skill = models.ManyToManyField(ResumeSkill)
+
+
+class ResumeExperienceToCourse(Timestampable, models.Model):
+    """ResumeExperienceToCourse table
+
+    Maps related experience information to course
+
+    Many to Many relationship with Course
+    Many to Many relationship with ResumeExperience
+
+    """
+    course = models.ManyToManyField(Course)
+    experience = models.ManyToManyField(ResumeExperience)
+
+
 '''End of resume section =====================================================
+'''
+
+
+''' Review section
+
+'''
+
+
+'''End of review section =====================================================
+'''
+
+
+''' Review section
+
+'''
+
+
+'''End of review section =====================================================
 '''
 
 
