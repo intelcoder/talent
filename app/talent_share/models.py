@@ -358,14 +358,116 @@ class ApprovedBookingRequest(Timestampable, models.Model):
     Stores reference of PendingBookingRequests when the request is approved
 
     One to One relationship with PendingBookingRequest
+    One to Many relationship with TutorProfile
+    One to Many relationship with StudentProfile
 
     request: approved request reference
+    tutor: Tutor profile reference
+    student: Studetn profile reference
     """
     request = models.OneToOneField(PendingBookingRequest,
                                    primary_key=True)
+    tutor = models.ForeignKey(TutorProfile,
+                              related_name="tutorprofile")
+    student = models.ForeignKey(StudentProfile,
+                                related_name="studentprofile")
+
+'''End of calendar section ===================================================
+'''
 
 
-'''End of calendar section ======================================
+'''Resume section
+
+'''
+
+
+class ResumeEducation(Timestampable, models.Model):
+    """ResumeEducation table
+
+    Stores tutor's education detail
+
+    One to Many relationship with TutorProfile
+
+    tutor: tutor profile reference
+    school: name of school
+    degree: name of degree
+    study_field: field of study
+    grade: GPA
+    start_month: started month of education
+    start_year: started year of education
+    end_month: ended month of education
+    end_year: ended year of education
+    extra: extracurricular activity detail
+    description: extra description
+    """
+    tutor = models.ForeignKey(TutorProfile,
+                              on_delete=models.CASCADE,
+                              related_name='+')
+    school = models.CharField(max_length=100)
+    degree = models.CharField(max_length=100)
+    study_field = models.CharField(max_length=100)
+    grade = models.CharField(max_length=10,
+                             blank=True)
+    start_month = models.CharField(max_length=25)
+    start_year = models.CharField(max_length=4)
+    end_month = models.CharField(max_length=25,
+                                 blank=True)
+    end_year = models.CharField(max_length=4,
+                                blank=True)
+    extra = models.TextField()
+    description = models.TextField()
+
+
+class ResumeSkill(Timestampable, models.Model):
+    """ResumeSkill table
+
+    Stores tutor's skill
+
+    One to Many relationship with TutorProfile
+
+    tutor: tutor profile reference
+    skill: name of skill
+    """
+    tutor = models.ForeignKey(TutorProfile,
+                              on_delete=models.CASCADE,
+                              related_name='+')
+    skill = models.CharField(max_length=20)
+
+
+class ResumeExperience(Timestampable, models.Model):
+    """ResumeExperience table
+
+    Stores tutor's experience detail
+
+    One to Many relationship with TutorProfile
+
+    tutor: tutor profile reference
+    title: name of title
+    company: name of company
+    location: location of company
+    grade: GPA
+    start_month: started month of experience
+    start_year: started year of experience
+    end_month: ended month of experience
+    end_year: ended year of experience
+    description: extra description
+    """
+    tutor = models.ForeignKey(TutorProfile,
+                              on_delete=models.CASCADE,
+                              related_name='+')
+    title = models.CharField(max_length=100)
+    company = models.CharField(max_length=100)
+    location = models.CharField(max_length=100)
+    start_month = models.CharField(max_length=25)
+    start_year = models.CharField(max_length=4)
+    end_month = models.CharField(max_length=25,
+                                 blank=True)
+    end_year = models.CharField(max_length=4,
+                                blank=True)
+    description = models.TextField()
+
+
+'''End of resume section =====================================================
 '''
 
 
@@ -408,18 +510,6 @@ class TutorReview(AbstractReview):
     onTime_rating = models.FloatField()
     tutor = models.ForeignKey(
         TutorProfile, related_name='+', on_delete=models.CASCADE)
-
-
-class Comment(Timestampable, models.Model):
-    creator = models.ManyToManyField(UserProfile, related_name='+')
-    comment = models.ForeignKey('self')
-
-    class Meta:
-        abstract = True
-
-
-class CourseComment(Comment):
-    course_id = models.ForeignKey(Course)
 
 
 # period, dayOfWeek, location
