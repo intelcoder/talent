@@ -27,8 +27,13 @@ class UserProfile(Timestampable, models.Model):
     user = models.OneToOneField(User,
                                 on_delete=models.CASCADE,
                                 primary_key=True)
-    profile_image_path = models.ImageField(upload_to='profile/pics')
-    pref_location = models.CharField()
+    display_name = models.CharField(max_length=20,
+                                    blank=False)
+    phone_number = models.CharField(max_length=15,
+                                    blank=True)
+    profile_image_path = models.ImageField(upload_to='profile/pics',
+                                           blank=True)
+    pref_location = models.CharField(blank=True)
 
 
 class TutorProfile(Timestampable, UserProfile):
@@ -524,11 +529,97 @@ class ResumeExperienceToCourse(Timestampable, models.Model):
 
 
 ''' Review section
-
+        ReviewStudent
+        ReviewCourse
+        ReviewTutor
 '''
 
 
+class ReviewStudent(Timestampable, models.Model):
+    student = models.ForeignKey(StudentProfile,
+                                related_name="+",
+                                on_delete=models.CASCADE)
+    author = models.ForeignKey(TutorProfile,
+                               related_name="+")
+    description = models.TextField()
+    # need to add review criteria
+
+
+class ReviewCourse(Timestampable, models.Model):
+    course = models.ForeignKey(Course,
+                               related_name="+",
+                               on_delete=models.CASCADE)
+    author = models.ForeignKey(StudentProfile,
+                               related_name="+")
+    description = models.TextField()
+    contents_rating = models.IntegerField()
+    knowledge_rating = models.IntegerField()
+    # need to add review criteria
+
+
+class ReviewTutor(Timestampable, models.Model):
+    tutor = models.ForeignKey(TutorProfile,
+                              related_name="+",
+                              on_delete=models.CASCADE)
+    author = models.ForeignKey(StudentProfile,
+                               related_name="+")
+    description = models.TextField()
+    preparation_rating = models.IntegerField()
+    teaching_rating = models.IntegerField()
+    onTime_rating = models.IntegerField()
+    # need to add review criteria
+
+
 '''End of review section =====================================================
+'''
+
+
+''' Administration section
+
+'''
+
+# user should upload photo of their credentials (User uploaded documents)
+# each document will be verified using 3rd party web/non-web services
+# user can upload multiple documents
+
+
+class ReceivedTutorApplication(Timestampable, models.Model):
+    applicant = models.OneToOneField(UserProfile)
+    phone_number = models.CharField(max_length=15)
+    # gov issueed id will be verified through 3rd party web service
+    is_gov_issued_id_verified = models.BooleanField(default=False)
+    is_phone_verified = models.BooleanField(default=False)
+    is_info_verified = models.BooleanField(default=False)
+
+
+class ReportCategory(models.Model):
+    category = models.CharField(max_length=20,
+                                blank=False,
+                                unique=True)
+
+
+class ReportSubCategory(models.Model):
+    category = models.ForeignKey(ReportCategory,
+                                 related_name="reportcategory")
+    sub_category = models.CharField(max_length=30,
+                                    blank=False,
+                                    unique=True)
+
+# need to store report as threads gets stored in db
+
+
+class ReportFromUser(Timestampable, models.Model):
+    sender = models.ForeignKey(UserProfile,
+                               related_name="userprofile",
+                               blank=False)
+    sub_category = models.ForeignKey(ReportSubCategory,
+                                     related_name="+",
+                                     blank=False)
+    message = models.TextField(blank=False)
+    status = models.CharField(max_length=1, blank=False)
+
+
+'''End of administration section =============================================
 '''
 
 
