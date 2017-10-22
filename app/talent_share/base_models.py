@@ -11,7 +11,9 @@ class Timestampable(models.Model):
 
 
 class AbstractArea(models.Model):
-    name = models.CharField(max_length=150)
+    # name is removed different
+    # level of region has different type of naming convention
+    # name = models.CharField(max_length=150)
     lat = models.FloatField()
     lng = models.FloatField()
     rad = models.FloatField()
