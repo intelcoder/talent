@@ -625,18 +625,20 @@ class ReportFromUser(Timestampable, models.Model):
 '''
 
 
-# End of Timothy's work
+''' Region section
 
-
-class Role(models.Model):
-    title = models.CharField(max_length=50, unique=True)
+'''
 
 
 class Country(AbstractArea):
-    pass
+    short_name = models.CharField(max_length=55, unique=True)
+    full_name = models.CharField(max_length=60, unique=True)
+    alpha_two_code = models.CharField(max_length=2, unique=True)
+    alpha_three_code = models.CharField(max_length=3, unique=True)
 
 
 class Province(AbstractArea):
+
     pass
 
 
@@ -651,24 +653,17 @@ class Address(AbstractArea):
 
 class Location(models.Model):
     country = models.ForeignKey(Country)
-    province = models.ForeignKey(Province)
-    city = models.ForeignKey(City)
+    # province and city is not needed since address has postal code
+    # province = models.ForeignKey(Province)
+    # city = models.ForeignKey(City)
     address = models.ForeignKey(Address)
 
 
-class TutorReview(AbstractReview):
-    express_rating = models.FloatField()
-    contents_rating = models.FloatField()
-    preparation_rating = models.FloatField()
-    teaching_rating = models.FloatField()
-    onTime_rating = models.FloatField()
-    tutor = models.ForeignKey(
-        TutorProfile, related_name='+', on_delete=models.CASCADE)
+'''End of region section =============================================
+'''
+
+# End of Timothy's work
 
 
-# period, dayOfWeek, location
-
-
-class CourseReview(AbstractReview):
-    course = models.ForeignKey(
-        Course, related_name='+', on_delete=models.CASCADE)
+class Role(models.Model):
+    title = models.CharField(max_length=50, unique=True)
