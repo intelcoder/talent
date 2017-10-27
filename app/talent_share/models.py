@@ -36,7 +36,7 @@ class UserProfile(Timestampable, models.Model):
     pref_location = models.CharField(blank=True)
 
 
-class TutorProfile(Timestampable, UserProfile):
+class TutorProfile(UserProfile, Timestampable):
     """TutorProfile table
 
     Stores tutor specific profile information
@@ -56,7 +56,7 @@ class TutorProfile(Timestampable, UserProfile):
     is_verified = models.BooleanField(default=False)
 
 
-class StudentProfile(Timestampable, UserProfile):
+class StudentProfile(UserProfile, Timestampable):
     """StudentProfile table
 
     Stores student specific profile information
@@ -73,210 +73,6 @@ class StudentProfile(Timestampable, UserProfile):
 '''End of profile section ====================================================
 '''
 
-
-''' Course and curriculum section
-        Course
-        ImageToCourse
-        Category
-        SubCategory
-        Curriculum
-        CurriculumContents
-        FileToCurriculum
-        ImageToCurriculum
-        IFrameLinkToCurriculum
-'''
-
-
-class Course(Timestampable, models.Model):
-    """Course table
-
-    Stores course information
-
-    One to one relationship with Tutor
-    Many to many relationship with SubCategory
-    One to many relationship with Curriculum
-    Many to many relationship with TutorAvailability
-
-
-    tutor: reference to the tutor who created the course
-    title: course title
-    description: course description
-    is_active: True if the course is available
-    group_max: maximum number of people per session
-    sub_category: subcategory of where the course belongs
-    availability: availability of course set by tutor
-    """
-    tutor = models.ForeignKey(TutorProfile,
-                              related_name="tutorprofile",
-                              on_delete=models.CASCADE)
-    sub_category = models.ManyToManyField(SubCategory)
-    availability = models.ManyToManyField(TutorAvailability)
-    title = models.CharField(max_length=255, help_text="Course title")
-    description = models.TextField()
-    is_active = models.BooleanField(default=True)
-    group_max = models.IntegerField()
-    price_per_session = models.IntegerField()
-
-
-class ImageToCourse(models.Model):
-    """ImageToCourse table
-
-    Stores mapping information between image and course
-
-    One to many relationship with Course
-
-    course: reference to the Course
-    course_image_path: path to course image file
-
-    """
-    course = models.ForeignKey(Course,
-                               related_name="+",
-                               on_delete=models.CASCADE)
-    course_image_path = models.ImageField(upload_to='course/pics')
-
-
-class IFrameLinkToCourse(models.Model):
-    """IframeLinkToCourse table
-
-    Stores mapping information between iFrameLink and course
-
-    One to many relationship with Course
-
-    course: reference to the Course
-    iframe_url: url of iframe
-    source_from: video provider
-
-    """
-    course = models.ForeignKey(Course,
-                               related_name="+",
-                               on_delete=models.CASCADE)
-    iframe_url = models.CharField(max_length=255)
-    source_from = models.CharField(max_length=100)
-
-
-class Category(models.Model):
-    """Category table
-
-    Stores list of category
-
-    name: name of category
-
-    """
-    name = models.CharField(max_length=50, unique=True)
-
-
-class SubCategory(models.Model):
-    """SubCategory table
-
-    Stores list of SubCategory
-
-    One to many relationship with Category
-
-    category: reference of Category
-    sub_category: name of subcategory
-
-    """
-    category = models.ForeignKey(Category, related_name="category")
-    sub_category = models.CharField(max_length=50, unique=True)
-
-
-class Curriculum(Timestampable, models.Model):
-    """SubCategory table
-
-    Stores list of SubCategory
-
-    One to many relationship with Category
-
-    category: reference of Category
-    sub_category: name of subcategory
-
-    """
-    course = models.ForeignKey(Course,
-                               related_name="+",
-                               on_delete=models.CASCADE)
-    step_number = models.IntegerField()
-    public_description = models.CharField(max_length=300)
-
-
-class CurriculumContents(Timestampable, models.Model):
-    """CurriculumContents table
-
-    Stores private contents of curriculum
-
-    One to one relationship with curriculum
-
-    curriculum: reference to the Curriculum
-    text_content: text content of curriculum
-    has_file: indicator of having file
-    has_image: indicator of having image
-    has_iframe: indicator of having iframe
-    """
-    curriculum = models.OneToOneField(Curriculum,
-                                      on_delete=models.CASCADE,
-                                      primary_key=True)
-    text_content = models.TextField()
-    has_file = models.BooleanField(default=False)
-    has_image = models.BooleanField(default=False)
-    has_iframe = models.BooleanField(default=False)
-
-
-class FileToCurriculumContents(models.Model):
-    """FileToCurriculumContents table
-
-    Stores mapping information between course contents related file
-        and curriculum contents
-
-    One to many relationship with CurriculumContents
-
-    contents: reference to the CurriculumContents
-    file_path: path to course related file
-
-    """
-    contents = models.ForeignKey(CurriculumContents,
-                                 related_name="+",
-                                 on_delete=models.CASCADE)
-    file_path = models.FilePathField(path='course/curriculum/file',
-                                     help_text="Upload file")
-
-
-class ImageToCurriculumContents(models.Model):
-    """ImageToCurriculumContents table
-
-    Stores mapping information between image and curriculum contents
-
-    One to many relationship with curriculum contents
-
-    contents: reference to the CurriculumContents
-    image_path: path to course image file
-
-    """
-    contents = models.ForeignKey(CurriculumContents,
-                                 related_name="+",
-                                 on_delete=models.CASCADE)
-    image_path = models.ImageField(upload_to='course/curriculum/pics')
-
-
-class IFrameLinkToCurriculumContents(models.Model):
-    """IFrameLinkToCurriculumContents table
-
-    Stores mapping information between iFrameLink and curriculum contents
-
-    One to many relationship with CurriculumContents
-
-    contents: reference to the CurriculumContents
-    iframe_url: url of iframe
-    source_from: video provider
-
-    """
-    contents = models.ForeignKey(CurriculumContents,
-                                   related_name="+",
-                                   on_delete=models.CASCADE)
-    iframe_url = models.CharField(max_length=255)
-    source_from = models.CharField(max_length=100)
-
-
-'''End of course and curriculum section ======================================
-'''
 
 
 ''' Calendar section
@@ -385,6 +181,212 @@ class ApprovedRequest(Timestampable, models.Model):
 
 '''End of calendar section ===================================================
 '''
+
+''' Course and curriculum section
+        Category
+        SubCategory
+        Course
+        ImageToCourse
+        Curriculum
+        CurriculumContents
+        FileToCurriculum
+        ImageToCurriculum
+        IFrameLinkToCurriculum
+'''
+
+
+
+class Category(models.Model):
+    """Category table
+
+    Stores list of category
+
+    name: name of category
+
+    """
+    name = models.CharField(max_length=50, unique=True)
+
+
+class SubCategory(models.Model):
+    """SubCategory table
+
+    Stores list of SubCategory
+
+    One to many relationship with Category
+
+    category: reference of Category
+    sub_category: name of subcategory
+
+    """
+    category = models.ForeignKey(Category, related_name="category")
+    sub_category = models.CharField(max_length=50, unique=True)
+
+class Course(Timestampable, models.Model):
+    """Course table
+
+    Stores course information
+
+    One to one relationship with Tutor
+    Many to many relationship with SubCategory
+    One to many relationship with Curriculum
+    Many to many relationship with TutorAvailability
+
+
+    tutor: reference to the tutor who created the course
+    title: course title
+    description: course description
+    is_active: True if the course is available
+    group_max: maximum number of people per session
+    sub_category: subcategory of where the course belongs
+    availability: availability of course set by tutor
+    """
+    tutor = models.ForeignKey(TutorProfile,
+                              related_name="tutorprofile",
+                              on_delete=models.CASCADE)
+    sub_category = models.ManyToManyField(SubCategory)
+    availability = models.ManyToManyField(TutorAvailability)
+    title = models.CharField(max_length=255, help_text="Course title")
+    description = models.TextField()
+    is_active = models.BooleanField(default=True)
+    group_max = models.IntegerField()
+    price_per_session = models.IntegerField()
+
+
+class ImageToCourse(models.Model):
+    """ImageToCourse table
+
+    Stores mapping information between image and course
+
+    One to many relationship with Course
+
+    course: reference to the Course
+    course_image_path: path to course image file
+
+    """
+    course = models.ForeignKey(Course,
+                               related_name="+",
+                               on_delete=models.CASCADE)
+    course_image_path = models.ImageField(upload_to='course/pics')
+
+
+class IFrameLinkToCourse(models.Model):
+    """IframeLinkToCourse table
+
+    Stores mapping information between iFrameLink and course
+
+    One to many relationship with Course
+
+    course: reference to the Course
+    iframe_url: url of iframe
+    source_from: video provider
+
+    """
+    course = models.ForeignKey(Course,
+                               related_name="+",
+                               on_delete=models.CASCADE)
+    iframe_url = models.CharField(max_length=255)
+    source_from = models.CharField(max_length=100)
+
+
+
+class Curriculum(Timestampable, models.Model):
+    """SubCategory table
+
+    Stores list of SubCategory
+
+    One to many relationship with Category
+
+    category: reference of Category
+    sub_category: name of subcategory
+
+    """
+    course = models.ForeignKey(Course,
+                               related_name="+",
+                               on_delete=models.CASCADE)
+    step_number = models.IntegerField()
+    public_description = models.CharField(max_length=300)
+
+
+class CurriculumContents(Timestampable, models.Model):
+    """CurriculumContents table
+
+    Stores private contents of curriculum
+
+    One to one relationship with curriculum
+
+    curriculum: reference to the Curriculum
+    text_content: text content of curriculum
+    has_file: indicator of having file
+    has_image: indicator of having image
+    has_iframe: indicator of having iframe
+    """
+    curriculum = models.OneToOneField(Curriculum,
+                                      on_delete=models.CASCADE,
+                                      primary_key=True)
+    text_content = models.TextField()
+    has_file = models.BooleanField(default=False)
+    has_image = models.BooleanField(default=False)
+    has_iframe = models.BooleanField(default=False)
+
+
+class FileToCurriculumContents(models.Model):
+    """FileToCurriculumContents table
+
+    Stores mapping information between course contents related file
+        and curriculum contents
+
+    One to many relationship with CurriculumContents
+
+    contents: reference to the CurriculumContents
+    file_path: path to course related file
+
+    """
+    contents = models.ForeignKey(CurriculumContents,
+                                 related_name="+",
+                                 on_delete=models.CASCADE)
+    file_path = models.FilePathField(path='course/curriculum/file',
+                                     help_text="Upload file")
+
+
+class ImageToCurriculumContents(models.Model):
+    """ImageToCurriculumContents table
+
+    Stores mapping information between image and curriculum contents
+
+    One to many relationship with curriculum contents
+
+    contents: reference to the CurriculumContents
+    image_path: path to course image file
+
+    """
+    contents = models.ForeignKey(CurriculumContents,
+                                 related_name="+",
+                                 on_delete=models.CASCADE)
+    image_path = models.ImageField(upload_to='course/curriculum/pics')
+
+
+class IFrameLinkToCurriculumContents(models.Model):
+    """IFrameLinkToCurriculumContents table
+
+    Stores mapping information between iFrameLink and curriculum contents
+
+    One to many relationship with CurriculumContents
+
+    contents: reference to the CurriculumContents
+    iframe_url: url of iframe
+    source_from: video provider
+
+    """
+    contents = models.ForeignKey(CurriculumContents,
+                                   related_name="+",
+                                   on_delete=models.CASCADE)
+    iframe_url = models.CharField(max_length=255)
+    source_from = models.CharField(max_length=100)
+
+
+'''End of course and curriculum section ======================================
+'''
+
 
 
 ''' Resume section
